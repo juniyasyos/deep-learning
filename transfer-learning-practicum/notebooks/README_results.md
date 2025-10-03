@@ -1,44 +1,39 @@
 # Hasil Notebook 01_transfer_learning_intro
 
-Notebook `01_transfer_learning_intro.ipynb` menampilkan contoh alur transfer learning menggunakan dataset dummy. Berikut ringkasan hasil utama yang dapat dijadikan referensi ketika menjalankan notebook.
+Notebook `01_transfer_learning_intro.ipynb` kini mencontohkan alur transfer learning dengan dataset nyata (default: CIFAR-10)
+serta opsi memakai `ImageFolder` pribadi. Gunakan ringkasan berikut sebagai panduan ketika menjalankan notebook.
 
 ## Lingkungan & Konfigurasi
 - Root proyek: `transfer-learning-practicum`
-- Python 3.12.x, PyTorch 2.0.x (contoh offline)
-- Perangkat: CPU (demo)
 - File konfigurasi: `configs/training.yaml`
-  - `num_epochs_feature_extraction`: 1
-  - `num_epochs_fine_tuning`: 1
-  - `freeze_until`: `all`
-  - Optimizer: Adam dengan `lr_feature_extraction=1e-3`, `lr_fine_tuning=1e-4`
+  - `dataset_name`: `cifar10` (ubah ke `imagefolder` jika memakai data sendiri)
+  - `data_root`: `data/raw`
+  - `train_subset_fraction`: 0.05 (sekitar ≤1K sampel agar cepat)
+  - `val_subset_fraction`: 0.1
+  - `max_train_samples`: 1024
+  - `max_val_samples`: 512
+  - `num_epochs_feature_extraction`: 2
+  - `num_epochs_fine_tuning`: 2
+  - `freeze_until`: `layer4`
+  - Optimizer Adam (`lr_feature_extraction=1e-3`, `lr_fine_tuning=1e-4`, `weight_decay=1e-4`)
 
-## Ringkasan Training
-- Tahap feature extraction berjalan 1 epoch dengan metrik contoh:
-  - Train loss ≈ 0.692, train acc ≈ 52%
-  - Val loss ≈ 0.701, val acc ≈ 48%
-- Tahap fine-tuning (kebijakan `freeze_until=all` pada demo dummy) berjalan 1 epoch dengan metrik contoh:
-  - Train loss ≈ 0.645, train acc ≈ 58%
-  - Val loss ≈ 0.672, val acc ≈ 55%
+## Ekspektasi Hasil
+- Saat `dataset_name=cifar10` dan subset 20%, kamu akan melihat 4 epoch total (2 freeze + 2 fine-tune).
+- Loss dan akurasi akan bergantung pada subset yang diambil; catat tren penurunan loss dan kenaikan akurasi antara tahap freeze dan fine-tune.
+- Artefak otomatis:
+  - Plot dua panel (loss & akurasi) disimpan ke `outputs/figures/loss_accuracy_demo.png`.
+  - Ringkasan konfigurasi + metrik ke `outputs/reports/run_summary.json`.
+  - Checkpoint hasil fine-tune ke `models/demo_model_state_dict.pt`.
 
-> Angka di atas dihasilkan dari dataset dummy acak; hasil aktual akan berubah sesuai dataset dan konfigurasi.
+> Jalankan notebook untuk menghasilkan nilai metrik aktual. Berkas artefak akan ditimpa setiap kali eksperimen baru dijalankan.
 
-## Visualisasi & Artefak
-Notebook menyertakan plot dua panel:
-1. **Loss per Stage** — membandingkan train vs validation loss untuk setiap tahap.
-2. **Accuracy per Stage** — memperlihatkan perkembangan akurasi (0–1) selama dua tahap training.
+## Cara Menjalankan
+1. Instal dependensi (Torch + Torchvision) pada environment yang sudah ada: `pip install --user -r requirements.txt`.
+2. Eksekusi notebook dari awal. Pada eksekusi pertama, CIFAR-10 akan terunduh otomatis ke `data/raw`. Tanpa internet, siapkan folder `train/` dan `val/` lalu set `dataset_name=imagefolder`.
+3. Setelah training selesai, bukalah plot dan ringkasan untuk refleksi hasil. Dokumentasikan perubahan konfigurasi pada catatan praktikummu.
 
-Artefak contoh yang dihasilkan (akan dibuat ulang saat notebook dijalankan):
-- Gambar: `outputs/figures/loss_accuracy_demo.png`
-- Ringkasan JSON: `outputs/reports/run_summary.json`
-- Checkpoint dummy: `models/demo_model_state_dict.pt`
-
-## Cara Replikasi
-1. Pastikan dependensi terpasang (`pip install -r requirements.txt`).
-2. Jalankan notebook dari awal hingga akhir untuk menghasilkan hasil aktual sesuai lingkunganmu.
-3. Periksa folder `outputs/` dan `models/` untuk artefak training.
-
-## Catatan
-- Notebook menggunakan dataset dummy agar aman dieksekusi tanpa sumber data eksternal.
-- Jika kamu memiliki GPU, biarkan `device` pada `training.yaml` bernilai `cuda_if_available` dan pastikan CUDA tersedia.
-- Untuk demo studi kasus nyata, ganti `SimpleImageDataModule` dengan loader dataset aslimu (mis. Pascal VOC2007) dan sesuaikan `NUM_CLASSES`.
+## Tips Lanjutan
+- Tingkatkan `train_subset_fraction` secara bertahap bila ingin mendekati hasil penuh CIFAR-10.
+- Set `freeze_until=none` untuk full fine-tuning setelah kamu puas dengan hasil parsial.
+- Ganti dataset ke `ImageFolder` medis atau domainmu sendiri untuk mempraktikkan transfer learning di kasus nyata.
 
