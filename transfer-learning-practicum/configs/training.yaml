@@ -1,0 +1,15 @@
+seed: 42
+device: "cuda_if_available"   # opsi: cuda_if_available | cpu
+batch_size: 16
+num_workers: 2
+num_epochs_feature_extraction: 1   # singkat untuk demo
+num_epochs_fine_tuning: 1          # singkat untuk demo
+optimizer: "adam"
+lr_feature_extraction: 1e-3
+lr_fine_tuning: 1e-4
+weight_decay: 1e-4
+pretrained_backbone: "resnet18"    # baseline yang ringan untuk praktikum
+freeze_until: "all"                # all | layer4 | none
+log_dir: "outputs/reports"
+fig_dir: "outputs/figures"
+save_dir: "models"
